@@ -11,6 +11,55 @@ const connectionInfo = {
 
 class RequestsManager {
 
+    //Edmund - This function is not complete yet- It changes the SubletRequest's status to 'accepted'
+    //         but does not return message, firstName, lastName and contactInfo
+    static async acceptSubletRequest({email, postId, subleteeEmail}) {
+        let connection;
+        let reason;
+        let successful = false;
+
+
+
+        let acceptSubletRequestQuery = `UPDATE SubletRequests
+                                        SET Status='accepted'  
+                                        WHERE PostId=${postId} AND Email='${subleteeEmail}'`
+
+
+
+        try {
+            connection = await oracledb.getConnection(connectionInfo);
+            console.log("Connection successful. Accepting sublet request");
+
+            let acceptSubletRequestResult = await connection.execute(acceptSubletRequestQuery);
+
+
+            successful = acceptSubletRequestResult.rowsAffected > 0;
+
+            if (successful) {
+                console.log(`sublet request accepted successfully`);
+
+            } else {
+                console.log(`Something went wrong, sublet request not accepted`);
+                reason = "NO_ROWS_AFFECTED";
+            }
+        } catch (err) {
+            successful = false;
+            reason = err.message;
+            console.log(`Something went wrong, sublet request not accepted`);
+            console.log(err);
+        } finally {
+            if (connection) {
+                try {
+                    await connection.close();
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+
+        return {successful, reason};
+    }
+
 
 
 
