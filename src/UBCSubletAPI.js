@@ -142,7 +142,7 @@ class UBCSubletAPI {
 
     static async getFilteredPosts({filters, orderBy}) {
         let responseCode = 200;
-        let posts
+        let posts;
         // TODO: Implement this
 
 
@@ -151,7 +151,6 @@ class UBCSubletAPI {
 
 
     static async acceptSubletRequest({auth, postId, subleteeEmail}) {
-        let responseCode = 200;
         let message;
         let firstName;
         let lastName;
@@ -164,20 +163,25 @@ class UBCSubletAPI {
         // TODO: Implement this
 
 
+
         return {response: {message, firstName, lastName, contactInfo}, code: responseCode};
     }
 
     static async createSubletRequest({auth, postId, message}) {
-        let responseCode = 200;
+
 
         if (!(auth && await UsersManager.isAuthorized(auth))) {
             return {code: 401};
         }
 
-        // TODO: Implement this
+        let email = auth.email;
+
+        let {successful, reason} = await RequestsManager.createSubletRequest({email, postId, message});
+        let responseCode = successful? 200 : 400;
+        let response = reason? {reason} : null;
 
 
-        return {response: {}, code: responseCode};
+        return {response: {response}, code: responseCode};
     }
 
 
