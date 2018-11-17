@@ -118,8 +118,8 @@ class UsersManager {
         let reason;
         let successful = false;
 
-        let insertContactInfoQuery = `INSERT INTO SubleteeInfo (Email, Firstname, Lastname, ContactInfo) 
-                               VALUES ('${email}','${firstName}','${lastName}','${contactInfo}')`
+        let insertContactInfoQuery = `INSERT INTO SubleteeInfos (Email, Firstname, Lastname, ContactDescription) 
+                                      VALUES ('${email}','${firstName}','${lastName}','${contactInfo}')`
 
         try {
             connection = await oracledb.getConnection(connectionInfo);
@@ -158,9 +158,9 @@ class UsersManager {
         let reason;
         let successful = false;
 
-        let updateContactInfoQuery = `UPDATE SubleteeInfo 
-                                 SET Firstname='${firstName}', Lastname='${lastName}', ContactInfo='${contactInfo}'   
-                                 WHERE Email='${email}'`
+        let updateContactInfoQuery = `UPDATE SubleteeInfos 
+                                      SET Firstname='${firstName}', Lastname='${lastName}', ContactDescription='${contactInfo}'   
+                                      WHERE Email='${email}'`
 
         try {
             connection = await oracledb.getConnection(connectionInfo);
