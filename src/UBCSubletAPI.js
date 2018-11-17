@@ -185,29 +185,55 @@ class UBCSubletAPI {
     }
 
 
+
+
+//Shamit - Console.log is showing the correct output according to auth input i.e. Returned History Items
     static async getHistory({auth}) {
         let responseCode = 200;
-        let historyItems;
+        let postId;
 
         if (!(auth && await UsersManager.isAuthorized(auth))) {
             return {code: 401};
         }
 
-        // TODO: Implement this
+        let email = auth.email;
 
+        let {successful, reason} = await UsersManager.getHistoryItems({email})
 
-        return {response: {historyItems}, code: responseCode};
+        let code = successful? 200 : 404;
+        let response = reason? {reason} : null;
+
+        return {response: {postId}, code: responseCode};
+
     }
 
+
+
+
+
+
+//Shamit - Unsure if this works
     static async getFilterCount() {
         let responseCode = 200;
 
-        // TODO: Implement this
+        let resCount;
+        let typeCount;
+        let kitchenCount;
+        let bathroomCount;
+        let residentsCount;
 
+        let {successful, reason} = await PostsManager.getFilterCount();
+        let code = successful? 200 : 404;
+        let response = reason? {reason} : null;
 
-        return {response: {/*TODO*/}, code: responseCode};
+        return {response: {resCount, typeCount, kitchenCount, bathroomCount, residentsCount}, code: responseCode};
     }
 
+
+
+
 }
+
+
 
 module.exports = UBCSubletAPI;
