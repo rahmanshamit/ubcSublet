@@ -16,10 +16,10 @@ class UsersManager {
         let reason;
         let successful = false;
 
-        let matchedUsersQuery = `SELECT Email 
-                                 FROM Users 
+        let matchedUsersQuery = `SELECT Email
+                                 FROM Users
                                  WHERE Email='${email}'`
-        let insertUserQuery = `INSERT INTO Users (Email, Password) 
+        let insertUserQuery = `INSERT INTO Users (Email, Password)
                                VALUES ('${email}','${password}')`
 
         try {
@@ -67,8 +67,8 @@ class UsersManager {
         let reason;
         let successful = false;
 
-        let matchedUsersQuery = `SELECT Email, Password 
-                                 FROM Users 
+        let matchedUsersQuery = `SELECT Email, Password
+                                 FROM Users
                                  WHERE Email='${email}'`
 
         try {
@@ -118,7 +118,7 @@ class UsersManager {
         let reason;
         let successful = false;
 
-        let insertContactInfoQuery = `INSERT INTO SubleteeInfo (Email, Firstname, Lastname, ContactInfo) 
+        let insertContactInfoQuery = `INSERT INTO SubleteeInfo (Email, Firstname, Lastname, ContactInfo)
                                VALUES ('${email}','${firstName}','${lastName}','${contactInfo}')`
 
         try {
@@ -158,8 +158,8 @@ class UsersManager {
         let reason;
         let successful = false;
 
-        let updateContactInfoQuery = `UPDATE SubleteeInfo 
-                                 SET Firstname='${firstName}', Lastname='${lastName}', ContactInfo='${contactInfo}'   
+        let updateContactInfoQuery = `UPDATE SubleteeInfo
+                                 SET Firstname='${firstName}', Lastname='${lastName}', ContactInfo='${contactInfo}'
                                  WHERE Email='${email}'`
 
         try {
@@ -193,6 +193,59 @@ class UsersManager {
 
         return {successful, reason};
     }
+
+
+
+    //getHistoryItems-Shamit: console.log(`Returned History Items`) is working
+    static async getHistoryItems({email}) {
+        let connection;
+        let reason;
+        let successful = false;
+        let historyQuery = `SELECT postId
+                            FROM historyItems
+                            WHERE Email='${email}'`
+        try {
+            connection = await oracledb.getConnection(connectionInfo);
+            console.log("Connection successful. Attempting to get History Items");
+
+            let historyResult = await connection.execute(historyQuery
+      );
+
+
+            if (historyResult.rows.length > 0) {
+                console.log(`Returned History Items`);
+            } else {
+                console.log(`Something went wrong, History Items not found`);
+                reason = "NOT_FOUND";
+            }
+        } catch (err) {
+            successful = false;
+            reason = err.message;
+            console.log(`Something went wrong, History Items not found`);
+            console.log(err);
+        } finally {
+            if (connection) {
+                try {
+                    await connection.close();
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+
+        return {successful, reason};
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 }
 
