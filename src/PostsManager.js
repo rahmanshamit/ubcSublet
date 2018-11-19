@@ -11,68 +11,134 @@ const connectionInfo = {
 
 
 
-//Not sure to check CountOutput
+
 class PostsManager {
-  static async getFilterCount() {
-    let connection;
-    let reason;
-    let successful = false;
 
-    let countQuery =
-
-        `SELECT COUNT(Residence), Residence
-        FROM CompleteSubletPost
-        GROUP BY Residence;`
-
-/*        `SELECT COUNT(Unittype), Unittype
-        FROM CompleteSubletPost
-        GROUP BY UnitType;`
-
-        `SELECT COUNT(kitchen), kitchen
-        FROM CompleteSubletPost
-        GROUP BY has kitchen;`
-
-        `SELECT COUNT(bathrooms), bathrooms
-        FROM CompleteSubletPost
-        GROUP BY bathrooms;`
+    static async getFilterCount() {
+      let connection;
+      let reason;
+      let successful = false;
 
 
-        `SELECT COUNT(residents), residents
-        FROM CompleteSubletPost
-        GROUP BY residents;`
-*/
+      let resCount = [];
+      let typeCount = [];
+      let kitchenCount = [];
+      let bathroomCount = [];
+      let residentsCount = [];
 
-    try {
-        connection = await oracledb.getConnection(connectionInfo);
-        console.log("Connection successful. Attempting to get count");
+      let countResQuery =
+          `SELECT Residence, COUNT(Residence)
+          FROM CompletePosts
+          GROUP BY Residence`
 
-        let countResult = await connection.execute(countQuery);
 
-        successful = countResult.rowsAffected > 0;
+      let countUnittypeQuery =
+          `SELECT UnitType, COUNT(UnitType)
+          FROM CompletePosts
+          GROUP BY UnitType`
 
-        if (successful) {
-            console.log(`count successful`);
-        } else {
-            console.log(`Something went wrong, count not found`);
-            reason = "NO_OUTPUT";
+      let countKitchenQuery =
+          `SELECT Kitchens, COUNT(Kitchens)
+          FROM CompletePosts
+          GROUP BY Kitchens`
+
+     let countBathroomQuery =
+          `SELECT Bathrooms, COUNT(Bathrooms)
+          FROM CompletePosts
+          GROUP BY Bathrooms`
+
+
+   let countResidentsQuery =
+          `SELECT Residents, COUNT(Residents)
+          FROM CompletePosts
+          GROUP BY Residents`
+
+      try {
+
+          connection = await oracledb.getConnection(connectionInfo);
+          console.log("Connection successful. Attempting to get count");
+
+          let countResResult = await connection.execute(countResQuery);
+          let countUnitResult = await connection.execute(countUnittypeQuery);
+          let countKitchenResult = await connection.execute(countKitchenQuery);
+          let countBathResult = await connection.execute(countBathroomQuery);
+          let countResidentsResult = await connection.execute(countResidentsQuery);
+
+
+          successful = countResResult.rows.length > 0;
+
+          if (successful) {
+
+            resCount = countResResult.rows.map((row)=>{
+              return {
+                value: row[0],
+                count: row[1]
+              };
+            });
+
+
+            typeCount = countUnitResult.rows.map((row)=>{
+              return {
+                value: row[0],
+                count: row[1]
+              };
+            });
+
+
+
+            kitchenCount = countKitchenResult.rows.map((row)=>{
+              return {
+                value: row[0],
+                count: row[1]
+              };
+            });
+
+
+
+            bathroomCount = countBathResult.rows.map((row)=>{
+              return {
+                value: row[0],
+                count: row[1]
+              };
+            });
+
+
+            residentsCount = countResidentsResult.rows.map((row)=>{
+              return {
+                value: row[0],
+                count: row[1]
+              };
+            });
+
+
+
+         console.log(`count successful`);
+
         }
-    } catch (err) {
-        successful = false;
-        reason = err.message;
-        console.log(`Something went wrong, count not found`);
-        console.log(err);
-    } finally {
-        if (connection) {
-            try {
-                await connection.close();
-            } catch (err) {
-                console.error(err);
-            }
-        }
+
+
+          else {
+              console.log(`Something went wrong, count not found`);
+              reason = "NO_OUTPUT";
+          }
+      } catch (err) {
+          successful = false;
+          reason = err.message;
+          console.log(`Something went wrong, count not found`);
+          console.log(err);
+      } finally {
+          if (connection) {
+              try {
+                  await connection.close();
+              } catch (err) {
+                  console.error(err);
+              }
+          }
+      }
+
+      return {successful, reason, resCount, typeCount, kitchenCount, bathroomCount, residentsCount};
     }
 
-    return {successful, reason};
-  }
 
 }
 

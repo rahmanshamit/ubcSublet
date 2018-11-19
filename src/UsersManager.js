@@ -123,7 +123,7 @@ class UsersManager {
             return {successful, reason};
         }
 
-        let insertContactInfoQuery = `INSERT INTO SubleteeInfos (Email, Firstname, Lastname, ContactDescription) 
+        let insertContactInfoQuery = `INSERT INTO SubleteeInfos (Email, Firstname, Lastname, ContactDescription)
                                       VALUES ('${email}','${firstName}','${lastName}', ${contactInfo ? `'${contactInfo}'` : 'NULL'})`
 
 
@@ -170,9 +170,9 @@ class UsersManager {
         }
 
 
-        let updateContactInfoQuery = `UPDATE SubleteeInfos 
-                                      SET ${firstName ? `Firstname='${firstName}',` : ''} ${lastName ? `Lastname='${lastName}',` : ''} ${contactInfo ? `ContactDescription='${contactInfo}',` : ''} 
-                                      Email='${email}' 
+        let updateContactInfoQuery = `UPDATE SubleteeInfos
+                                      SET ${firstName ? `Firstname='${firstName}',` : ''} ${lastName ? `Lastname='${lastName}',` : ''} ${contactInfo ? `ContactDescription='${contactInfo}',` : ''}
+                                      Email='${email}'
                                       WHERE Email='${email}'`
 
         try {
@@ -208,25 +208,35 @@ class UsersManager {
     }
 
 
-
-    //getHistoryItems-Shamit: console.log(`Returned History Items`) is working
+//Shamit - Working
     static async getHistoryItems({email}) {
         let connection;
         let reason;
         let successful = false;
-        let historyQuery = `SELECT postId
+        let historyItems = [];
+        let historyQuery = `SELECT *
                             FROM historyItems
                             WHERE Email='${email}'`
         try {
             connection = await oracledb.getConnection(connectionInfo);
             console.log("Connection successful. Attempting to get History Items");
 
-            let historyResult = await connection.execute(historyQuery
-      );
+            let historyResult = await connection.execute(historyQuery);
+
+             successful = historyResult.rows.length > 0;
+
+            if (successful) {
+
+              let historyArray = historyResult.rows[0];
+
+                  historyItems={
+                    Email: historyArray[0],
+                    postId: historyArray[1],
+                    createdDate: historyArray[2]
+                  }
 
 
-            if (historyResult.rows.length > 0) {
-                console.log(`Returned History Items`);
+                console.log(`Returned History Items of user ${email}`);
             } else {
                 console.log(`Something went wrong, History Items not found`);
                 reason = "NOT_FOUND";
@@ -246,7 +256,7 @@ class UsersManager {
             }
         }
 
-        return {successful, reason};
+        return {successful, reason, historyItems};
     }
 
 
