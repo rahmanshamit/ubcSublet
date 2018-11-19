@@ -140,6 +140,73 @@ class PostsManager {
     }
 
 
+
+
+    static async getCreatePostInfo({email}) {
+        let connection;
+        let reason;
+        let successful = false;
+        let residences = [];
+        let unitTypes = [];
+
+
+        let residencesQuery = `SELECT residencename
+                            FROM residences`
+
+       let unitTypesQuery = `SELECT unittypename
+                           FROM unittypes`
+
+
+        try {
+            connection = await oracledb.getConnection(connectionInfo);
+            console.log("Connection successful. Attempting to get History Items");
+
+            let residencesResult = await connection.execute(residencesQuery);
+            let unitTypesResult = await connection.execute(unitTypesQuery);
+
+            successful = residencesResult.rows.length > 0 ;
+
+            if (successful) {
+
+              residences = residencesResult.rows.map((row)=>{
+                 return row[0]
+              });
+
+
+
+              unitTypes = unitTypesResult.rows.map((row)=>{
+                 return  row[0]
+              });
+
+
+                console.log(`Returned createPost Info for user ${email}`);
+            } else {
+
+                console.log(`Something went wrong, Info not found`);
+                reason = "NOT_FOUND";
+            }
+        } catch (err) {
+            successful = false;
+            reason = err.message;
+            console.log(`Something went wrong, Info not found`);
+            console.log(err);
+        } finally {
+            if (connection) {
+                try {
+                    await connection.close();
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+
+        return {successful, reason, residences, unitTypes};
+    }
+
+
+
+
+
 }
 
 module.exports = PostsManager;

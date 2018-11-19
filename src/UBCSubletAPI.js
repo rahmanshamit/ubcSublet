@@ -68,20 +68,22 @@ class UBCSubletAPI {
     // I created PostsManager and RequestsManger, we might need more
 
     static async getCreatePostInfo({auth}) {
-        let responseCode = 200;
-        let rooms;
-        let residences;
-        let unitTypes;
 
-        if (!(auth && await UsersManager.isAuthorized(auth))) {
-            return {code: 401};
-        }
+      if (!(auth && await UsersManager.isAuthorized(auth))) {
+          return {code: 401};
+      }
 
-        // TODO: Implement this
+      let email = auth.email;
 
+      let {successful, reason, residences, unitTypes} = await PostsManager.getCreatePostInfo({email})
 
-        return {response: {rooms,residences,unitTypes}, code: responseCode};
+      let code = successful? 200 : 404;
+      let response = successful? {residences, unitTypes} : {reason};
+
+      return {response, code};
     }
+
+
 
     static async createPost({auth, price, startDate, endDate, additionalInfo, existingRoom, newRoom}) {
         let responseCode = 200;
