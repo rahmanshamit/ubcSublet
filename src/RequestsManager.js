@@ -21,8 +21,11 @@ class RequestsManager {
         let subletRequestContactInfo;
 
         let acceptSubletRequestQuery = `UPDATE SubletRequests
-                                        SET Status='accepted'  
-                                        WHERE PostId=${postId} AND Email='${subleteeEmail}'`
+                                        SET Status='accepted'      
+                                        WHERE '${email}' IN (SELECT SubletterEmail 
+                                                             FROM SubletPosts
+                                                             WHERE SubletterEmail='${email}' AND PostId=${postId}) 
+                                               AND PostId=${postId} AND Email='${subleteeEmail}'`
 
         let matchedMessageQuery = `SELECT Message 
                                    FROM SubletRequests 
@@ -30,15 +33,15 @@ class RequestsManager {
 
         let matchedFirstNameQuery = `SELECT Firstname
                                      FROM SubleteeInfos SI, SubletRequests SR
-                                     WHERE SI.Email='${subleteeEmail}'`
+                                     WHERE SI.Email='${subleteeEmail}' AND SR.Email='${subleteeEmail}'`
 
         let matchedLastNameQuery = `SELECT Lastname
                                     FROM SubleteeInfos SI, SubletRequests SR
-                                    WHERE SI.Email='${subleteeEmail}'`
+                                    WHERE SI.Email='${subleteeEmail}' AND SR.Email='${subleteeEmail}'`
 
         let matchedContactInfoQuery = `SELECT ContactDescription
                                        FROM SubleteeInfos SI, SubletRequests SR
-                                       WHERE SI.Email='${subleteeEmail}'`
+                                       WHERE SI.Email='${subleteeEmail}' AND SR.Email='${subleteeEmail}'`
 
 
 
@@ -81,7 +84,7 @@ class RequestsManager {
             }
         } catch (err) {
             successful = false;
-            reason = err.message;
+            reason = "NO_MATCHING_RESULT"
             console.log(`Something went wrong, sublet request not accepted`);
             console.log(err);
         } finally {
@@ -108,7 +111,7 @@ class RequestsManager {
 
 
         let createSubletRequestQuery = `INSERT INTO SubletRequests (Email, PostId, Status ${message? ', Message' : ''})
-                                        VALUES ('${email}', ${postId}, 'pending' ${message? `, ${message}` : ''})`
+                                        VALUES ('${email}', ${postId}, 'pending' ${message? `, '${message}'` : ''})`
 
 
         try {
