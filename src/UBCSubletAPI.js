@@ -150,7 +150,7 @@ class UBCSubletAPI {
     }
 
 
-    
+
     static async acceptSubletRequest({auth, postId, subleteeEmail}) {
 
         if (!(auth && await UsersManager.isAuthorized(auth))) {
@@ -168,8 +168,6 @@ class UBCSubletAPI {
     }
 
     static async createSubletRequest({auth, postId, message}) {
-
-
         if (!(auth && await UsersManager.isAuthorized(auth))) {
             return {code: 401};
         }
@@ -177,11 +175,11 @@ class UBCSubletAPI {
         let email = auth.email;
 
         let {successful, reason} = await RequestsManager.createSubletRequest({email, postId, message});
-        let responseCode = successful? 200 : 400;
+        let code = successful? 200 : 400;
         let response = reason? {reason} : null;
 
 
-        return {response: {response}, code: responseCode};
+        return {response, code};
     }
 
 

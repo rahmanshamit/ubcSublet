@@ -107,8 +107,8 @@ class RequestsManager {
         let successful = false;
 
 
-        let createSubletRequestQuery = `INSERT INTO SubletRequests (Email, PostId, Status, Message)
-                                        VALUES ('${email}', ${postId}, 'pending', '${message}')`
+        let createSubletRequestQuery = `INSERT INTO SubletRequests (Email, PostId, Status ${message? ', Message' : ''})
+                                        VALUES ('${email}', ${postId}, 'pending' ${message? `, ${message}` : ''})`
 
 
         try {
@@ -127,7 +127,7 @@ class RequestsManager {
             }
         } catch (err) {
             successful = false;
-            reason = err.message;
+            reason = "REQUEST_ALREADY_CREATED"
             console.log(`Something went wrong, sublet request not created`);
             console.log(err);
         } finally {
