@@ -17,12 +17,30 @@ class RequestsManager {
         let connection;
         let reason;
         let successful = false;
-
-
+        let subletRequestMessage;
+        let subletRequestFirstName;
+        let subletRequestLastName;
+        let subletRequestContactInfo;
 
         let acceptSubletRequestQuery = `UPDATE SubletRequests
                                         SET Status='accepted'  
                                         WHERE PostId=${postId} AND Email='${subleteeEmail}'`
+
+        let matchedMessageQuery = `SELECT Message 
+                                   FROM SubletRequests 
+                                   WHERE PostId=${postId} AND Email='${subleteeEmail}'`
+
+        let matchedFirstNameQuery = `SELECT Firstname
+                                     FROM SubleteeInfos SI, SubletRequests SR
+                                     WHERE SI.Email='${subleteeEmail}'`
+
+        let matchedLastNameQuery = `SELECT Lastname
+                                    FROM SubleteeInfos SI, SubletRequests SR
+                                    WHERE SI.Email='${subleteeEmail}'`
+
+        let matchedContactInfoQuery = `SELECT ContactDescription
+                                       FROM SubleteeInfos SI, SubletRequests SR
+                                       WHERE SI.Email='${subleteeEmail}'`
 
 
 
@@ -32,10 +50,31 @@ class RequestsManager {
 
             let acceptSubletRequestResult = await connection.execute(acceptSubletRequestQuery);
 
+            let matchedMessageResult = await connection.execute(matchedMessageQuery);
+
+            let matchedFirstNameResult = await connection.execute(matchedFirstNameQuery);
+
+            let matchedLastNameResult = await connection.execute(matchedLastNameQuery);
+
+            let matchedContactInfoResult = await connection.execute(matchedContactInfoQuery);
+
 
             successful = acceptSubletRequestResult.rowsAffected > 0;
 
             if (successful) {
+
+                let messageArray = matchedMessageResult.rows[0];
+                subletRequestMessage = messageArray[0];
+
+                let firstNameArray = matchedFirstNameResult.rows[0];
+                subletRequestFirstName = firstNameArray[0];
+
+                let lastNameArray = matchedLastNameResult.rows[0];
+                subletRequestLastName = lastNameArray[0];
+
+                let contactInfoArray = matchedContactInfoResult.rows[0];
+                subletRequestContactInfo = contactInfoArray[0];
+
                 console.log(`sublet request accepted successfully`);
 
             } else {
@@ -57,7 +96,8 @@ class RequestsManager {
             }
         }
 
-        return {successful, reason};
+
+        return {successful, reason, subletRequestMessage, subletRequestFirstName, subletRequestLastName, subletRequestContactInfo};
     }
 
 

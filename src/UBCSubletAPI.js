@@ -153,10 +153,6 @@ class UBCSubletAPI {
     //Edmund - This function is not complete yet- It changes the SubletRequest's status to 'accepted'
     //         but does not return message, firstName, lastName and contactInfo
     static async acceptSubletRequest({auth, postId, subleteeEmail}) {
-        let message;
-        let firstName;
-        let lastName;
-        let contactInfo;
 
         if (!(auth && await UsersManager.isAuthorized(auth))) {
             return {code: 401};
@@ -164,11 +160,12 @@ class UBCSubletAPI {
 
         let email = auth.email;
 
-        let {successful, reason} = await RequestsManager.acceptSubletRequest({email, postId, subleteeEmail});
-        let responseCode = successful? 200 : 400;
-        let response = reason? {reason} : null;
+        let {successful, reason, message, firstName, lastName, contactInfo} = await RequestsManager.acceptSubletRequest({email, postId, subleteeEmail});
+        let code = successful? 200 : 400;
+        let response = successful? {message, firstName, lastName, contactInfo} : {reason};
 
-        return {response: {message, firstName, lastName, contactInfo}, code: responseCode};
+
+        return {response, code};
     }
 
     static async createSubletRequest({auth, postId, message}) {
