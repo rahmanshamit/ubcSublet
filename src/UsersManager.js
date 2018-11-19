@@ -118,9 +118,13 @@ class UsersManager {
         let reason;
         let successful = false;
 
+        if (!firstName || !lastName) {
+            reason = "FIRST_AND_LAST_NAMES_MUST_HAVE_VALUES";
+            return {successful, reason};
+        }
 
         let insertContactInfoQuery = `INSERT INTO SubleteeInfos (Email, Firstname, Lastname, ContactDescription) 
-                                      VALUES ('${email}','${firstName}','${lastName}','${contactInfo}')`
+                                      VALUES ('${email}','${firstName}','${lastName}', ${contactInfo ? `'${contactInfo}'` : 'NULL'})`
 
 
         try {
@@ -160,11 +164,16 @@ class UsersManager {
         let reason;
         let successful = false;
 
+        if (!firstName && !lastName && !contactInfo) {
+            reason = "NO_VALUE_GIVEN_FOR_A_FIELD";
+            return {successful, reason};
+        }
+
 
         let updateContactInfoQuery = `UPDATE SubleteeInfos 
-                                      SET Firstname='${firstName}', Lastname='${lastName}', ContactDescription='${contactInfo}'   
+                                      SET ${firstName ? `Firstname='${firstName}',` : ''} ${lastName ? `Lastname='${lastName}',` : ''} ${contactInfo ? `ContactDescription='${contactInfo}',` : ''} 
+                                      Email='${email}' 
                                       WHERE Email='${email}'`
-
 
         try {
             connection = await oracledb.getConnection(connectionInfo);
