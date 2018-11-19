@@ -106,7 +106,6 @@ class RequestsManager {
         let reason;
         let successful = false;
 
-        console.log(postId);
 
         let createSubletRequestQuery = `INSERT INTO SubletRequests (Email, PostId, Status, Message)
                                         VALUES ('${email}', ${postId}, 'pending', '${message}')`
