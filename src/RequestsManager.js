@@ -11,8 +11,6 @@ const connectionInfo = {
 
 class RequestsManager {
 
-    //Edmund - This function is not complete yet- It changes the SubletRequest's status to 'accepted'
-    //         but does not return message, firstName, lastName and contactInfo
     static async acceptSubletRequest({email, postId, subleteeEmail}) {
         let connection;
         let reason;

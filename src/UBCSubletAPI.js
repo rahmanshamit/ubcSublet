@@ -150,8 +150,7 @@ class UBCSubletAPI {
     }
 
 
-    //Edmund - This function is not complete yet- It changes the SubletRequest's status to 'accepted'
-    //         but does not return message, firstName, lastName and contactInfo
+    
     static async acceptSubletRequest({auth, postId, subleteeEmail}) {
 
         if (!(auth && await UsersManager.isAuthorized(auth))) {
