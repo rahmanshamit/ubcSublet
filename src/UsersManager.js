@@ -208,57 +208,64 @@ class UsersManager {
     }
 
 
-//Shamit - Working
-    static async getHistoryItems({email}) {
-        let connection;
-        let reason;
-        let successful = false;
-        let historyItems = [];
-        let historyQuery = `SELECT *
-                            FROM historyItems
-                            WHERE Email='${email}'`
-        try {
-            connection = await oracledb.getConnection(connectionInfo);
-            console.log("Connection successful. Attempting to get History Items");
+//Shamit - Working and Updated
+static async getHistoryItems({email}) {
+    let connection;
+    let reason;
+    let successful = false;
+    let historyItems = [];
+    let historyQuery = `SELECT s.PostId, s.Price, s.StartDate, s.EndDate, s.AdditionalInfo, s.Residence, s.Roomnumber, h.CreatedDate , i.Email, i.Firstname, i.Lastname
+                        FROM subletposts s, historyitems h, subleteeinfos i
+                        WHERE h.postid = s.postid AND h.email = i.email AND s.subletteremail='${email}'`
+    try {
+        connection = await oracledb.getConnection(connectionInfo);
+        console.log("Connection successful. Attempting to get History Items");
 
-            let historyResult = await connection.execute(historyQuery);
+        let historyResult = await connection.execute(historyQuery);
 
-             successful = historyResult.rows.length > 0;
+         successful = historyResult.rows.length > 0;
 
-            if (successful) {
+        if (successful) {
 
-              let historyArray = historyResult.rows[0];
+          let historyArray = historyResult.rows[0];
 
-                  historyItems={
-                    Email: historyArray[0],
-                    postId: historyArray[1],
-                    createdDate: historyArray[2]
-                  }
+              historyItems={
+                PostId: historyArray[0],
+                Price: historyArray[1],
+                StartDate: historyArray[2],
+                EndDate: historyArray[3],
+                AdditionalInfo: historyArray[4],
+                Residence: historyArray[5],
+                Roomnumber: historyArray[6],
+                CreatedDate: historyArray[7],
+                subleteeEmail: historyArray[8],
+                subleteeFirstName: historyArray[9],
+                subleteeLastName: historyArray[10]
+              }
 
 
-                console.log(`Returned History Items of user ${email}`);
-            } else {
-                console.log(`Something went wrong, History Items not found`);
-                reason = "NOT_FOUND";
-            }
-        } catch (err) {
-            successful = false;
-            reason = err.message;
+            console.log(`Returned History Items of user ${email}`);
+        } else {
             console.log(`Something went wrong, History Items not found`);
-            console.log(err);
-        } finally {
-            if (connection) {
-                try {
-                    await connection.close();
-                } catch (err) {
-                    console.error(err);
-                }
+            reason = "NOT_FOUND";
+        }
+    } catch (err) {
+        successful = false;
+        reason = err.message;
+        console.log(`Something went wrong, History Items not found`);
+        console.log(err);
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+            } catch (err) {
+                console.error(err);
             }
         }
-
-        return {successful, reason, historyItems};
     }
 
+    return {successful, reason, historyItems};
+}
 
 
 
