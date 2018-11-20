@@ -21,12 +21,26 @@ class RequestsManager {
         let subletRequestContactInfo;
         let subletRequestEmail = subleteeEmail;
 
+        var date = new Date();
+        date = new Date(date).toUTCString();
+        date = date.split(' ').slice(1, 4).join(' ');
+
         let acceptSubletRequestQuery = `UPDATE SubletRequests
                                         SET Status='Accepted'      
                                         WHERE '${email}' IN (SELECT SubletterEmail 
                                                              FROM SubletPosts
                                                              WHERE SubletterEmail='${email}' AND PostId=${postId}) 
                                                AND PostId=${postId} AND Email='${subleteeEmail}'`
+
+        let updatePostStatusQuery =  `UPDATE SubletPosts
+                                      SET Status='Closed'      
+                                      WHERE PostId=${postId} AND SubletterEmail='${email}'`
+
+
+
+        let createHistoryItemQuery = `INSERT INTO HistoryItems (Email, PostId, CreatedDate)
+                                      VALUES ('${subleteeEmail}', ${postId}, TO_TIMESTAMP ('${date}', 'DD Mon YYYY'))`
+
 
         let matchedMessageQuery = `SELECT Message 
                                    FROM SubletRequests 
@@ -53,6 +67,10 @@ class RequestsManager {
 
             let acceptSubletRequestResult = await connection.execute(acceptSubletRequestQuery);
 
+            let updatePostStatusResult = await connection.execute(updatePostStatusQuery);
+
+            let createHistoryItemResult = await connection.execute(createHistoryItemQuery);
+
             let matchedMessageResult = await connection.execute(matchedMessageQuery);
 
             let matchedFirstNameResult = await connection.execute(matchedFirstNameQuery);
@@ -62,7 +80,8 @@ class RequestsManager {
             let matchedContactInfoResult = await connection.execute(matchedContactInfoQuery);
 
 
-            successful = acceptSubletRequestResult.rowsAffected > 0;
+            successful = acceptSubletRequestResult.rowsAffected > 0 && updatePostStatusResult.rowsAffected > 0 &&
+                            createHistoryItemResult.rowsAffected > 0;
 
             if (successful) {
 
