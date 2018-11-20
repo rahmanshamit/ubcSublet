@@ -123,7 +123,7 @@ class UsersManager {
             return {successful, reason};
         }
 
-        let insertContactInfoQuery = `INSERT INTO SubleteeInfos (Email, Firstname, Lastname, ContactDescription) 
+        let insertContactInfoQuery = `INSERT INTO SubleteeInfos (Email, Firstname, Lastname, ContactDescription)
                                       VALUES ('${email}','${firstName}','${lastName}', ${contactInfo ? `'${contactInfo}'` : 'NULL'})`
 
 
@@ -170,9 +170,9 @@ class UsersManager {
         }
 
 
-        let updateContactInfoQuery = `UPDATE SubleteeInfos 
-                                      SET ${firstName ? `Firstname='${firstName}',` : ''} ${lastName ? `Lastname='${lastName}',` : ''} ${contactInfo ? `ContactDescription='${contactInfo}',` : ''} 
-                                      Email='${email}' 
+        let updateContactInfoQuery = `UPDATE SubleteeInfos
+                                      SET ${firstName ? `Firstname='${firstName}',` : ''} ${lastName ? `Lastname='${lastName}',` : ''} ${contactInfo ? `ContactDescription='${contactInfo}',` : ''}
+                                      Email='${email}'
                                       WHERE Email='${email}'`
 
         try {
@@ -208,47 +208,64 @@ class UsersManager {
     }
 
 
+//Shamit - Working and Updated
+static async getHistoryItems({email}) {
+    let connection;
+    let reason;
+    let successful = false;
+    let historyItems = [];
+    let historyQuery = `SELECT s.PostId, s.Price, s.StartDate, s.EndDate, s.AdditionalInfo, s.Residence, s.Roomnumber, h.CreatedDate , i.Email, i.Firstname, i.Lastname
+                        FROM subletposts s, historyitems h, subleteeinfos i
+                        WHERE h.postid = s.postid AND h.email = i.email AND s.subletteremail='${email}'`
+    try {
+        connection = await oracledb.getConnection(connectionInfo);
+        console.log("Connection successful. Attempting to get History Items");
 
-    //getHistoryItems-Shamit: console.log(`Returned History Items`) is working
-    static async getHistoryItems({email}) {
-        let connection;
-        let reason;
-        let successful = false;
-        let historyQuery = `SELECT postId
-                            FROM historyItems
-                            WHERE Email='${email}'`
-        try {
-            connection = await oracledb.getConnection(connectionInfo);
-            console.log("Connection successful. Attempting to get History Items");
+        let historyResult = await connection.execute(historyQuery);
 
-            let historyResult = await connection.execute(historyQuery
-      );
+         successful = historyResult.rows.length > 0;
+
+        if (successful) {
+
+          let historyArray = historyResult.rows[0];
+
+              historyItems={
+                PostId: historyArray[0],
+                Price: historyArray[1],
+                StartDate: historyArray[2],
+                EndDate: historyArray[3],
+                AdditionalInfo: historyArray[4],
+                Residence: historyArray[5],
+                Roomnumber: historyArray[6],
+                CreatedDate: historyArray[7],
+                subleteeEmail: historyArray[8],
+                subleteeFirstName: historyArray[9],
+                subleteeLastName: historyArray[10]
+              }
 
 
-            if (historyResult.rows.length > 0) {
-                console.log(`Returned History Items`);
-            } else {
-                console.log(`Something went wrong, History Items not found`);
-                reason = "NOT_FOUND";
-            }
-        } catch (err) {
-            successful = false;
-            reason = err.message;
+            console.log(`Returned History Items of user ${email}`);
+        } else {
             console.log(`Something went wrong, History Items not found`);
-            console.log(err);
-        } finally {
-            if (connection) {
-                try {
-                    await connection.close();
-                } catch (err) {
-                    console.error(err);
-                }
+            reason = "NOT_FOUND";
+        }
+    } catch (err) {
+        successful = false;
+        reason = err.message;
+        console.log(`Something went wrong, History Items not found`);
+        console.log(err);
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+            } catch (err) {
+                console.error(err);
             }
         }
-
-        return {successful, reason};
     }
 
+    return {successful, reason, historyItems};
+}
 
 
 
