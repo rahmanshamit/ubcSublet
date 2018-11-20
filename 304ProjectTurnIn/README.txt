@@ -1,1 +1,0 @@
-All of our SQL statements are written throughout posts, users, and requests managers. They are all stored as strings in different methods.
