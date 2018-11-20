@@ -96,6 +96,14 @@ app.post('/editSubleteeInfo', function (req, res) {
     });
 });
 
+app.post('/getSubleteeInfo', function (req, res) {
+    UBCSubletAPI.getSubleteeInfo(req.body).then(({response, code}) => {
+        res.status(code).send(response);
+    }).catch((err) => {
+        res.status(404).send(err);
+    });
+});
+
 app.post('/createSubletRequest', function (req, res) {
     UBCSubletAPI.createSubletRequest(req.body).then(({response, code}) => {
         res.status(code).send(response);

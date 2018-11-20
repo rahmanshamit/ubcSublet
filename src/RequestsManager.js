@@ -191,7 +191,7 @@ class RequestsManager {
 
         try {
             connection = await oracledb.getConnection(connectionInfo);
-            console.log("Connection successful. Accepting sublet request");
+            console.log("Connection successful. Getting sublet request info");
 
             let matchedPostResult = await connection.execute(matchedPostQuery);
 
@@ -227,7 +227,7 @@ class RequestsManager {
                 });
 
 
-                console.log(`sublet request accepted successfully`);
+                console.log(`sublet request info fetched successfully`);
 
             } else {
                 console.log(`Something went wrong, sublet request not found`);

@@ -63,6 +63,22 @@ class UBCSubletAPI {
         return {response, code};
     }
 
+    static async getSubleteeInfo({auth}) {
+        if (!(auth && await UsersManager.isAuthorized(auth))) {
+            return {code: 401};
+        }
+
+        let email = auth.email;
+
+        let {successful, reason, firstName, lastName, contactDescription} = await UsersManager.getSubleteeInfo({email});
+        let code = successful? 200 : 400;
+        let response = successful? {email, firstName, lastName, contactDescription} : reason;
+
+        return {response, code};
+    }
+
+
+
     // All the logic for the above should be in User Manager
     // We should create other managers to deal with different parts of the application
     // I created PostsManager and RequestsManger, we might need more

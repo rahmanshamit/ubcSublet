@@ -207,6 +207,63 @@ class UsersManager {
         return {successful, reason};
     }
 
+    static async getSubleteeInfo({email}) {
+        let connection;
+        let reason;
+        let successful = false;
+        let firstName;
+        let lastName;
+        let contactDescription;
+
+        let getSubleteeInfoQuery = `SELECT*
+                                    FROM SubleteeInfos
+                                    WHERE Email='${email}'`
+
+        try {
+            connection = await oracledb.getConnection(connectionInfo);
+            console.log("Connection successful. Getting subletee info");
+
+            let getSubleteeInfoResult = await connection.execute(getSubleteeInfoQuery);
+
+            successful = getSubleteeInfoResult.rows.length > 0;
+
+            if (successful) {
+                console.log(`Subletee Info fetched successfully`);
+
+                let subleteeInfoArray = getSubleteeInfoResult.rows[0];
+
+
+                        firstName = subleteeInfoArray[1];
+                        lastName = subleteeInfoArray[2];
+                        contactDescription = subleteeInfoArray[3];
+
+
+
+
+            } else {
+                console.log(`Something went wrong, could not find subletee info`);
+                reason = "SUBLETEEINFO_DOES_NOT_EXIST";
+            }
+        } catch (err) {
+            successful = false;
+            reason = err.message;
+            console.log(`Something went wrong, contact info not created`);
+            console.log(err);
+        } finally {
+            if (connection) {
+                try {
+                    await connection.close();
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+
+        return {successful, reason, firstName, lastName, contactDescription};
+    }
+
+
+
 
 //Shamit - Working and Updated
 static async getHistoryItems({email}) {
