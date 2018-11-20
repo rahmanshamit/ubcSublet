@@ -19,6 +19,7 @@ class RequestsManager {
         let subletRequestFirstName;
         let subletRequestLastName;
         let subletRequestContactInfo;
+        let subletRequestEmail = subleteeEmail;
 
         let acceptSubletRequestQuery = `UPDATE SubletRequests
                                         SET Status='Accepted'      
@@ -42,6 +43,7 @@ class RequestsManager {
         let matchedContactInfoQuery = `SELECT ContactDescription
                                        FROM SubleteeInfos SI, SubletRequests SR
                                        WHERE SI.Email='${subleteeEmail}' AND SR.Email='${subleteeEmail}'`
+
 
 
 
@@ -76,6 +78,7 @@ class RequestsManager {
                 let contactInfoArray = matchedContactInfoResult.rows[0];
                 subletRequestContactInfo = contactInfoArray[0];
 
+
                 console.log(`sublet request accepted successfully`);
 
             } else {
@@ -98,7 +101,8 @@ class RequestsManager {
         }
 
 
-        return {successful, reason, subletRequestMessage, subletRequestFirstName, subletRequestLastName, subletRequestContactInfo};
+        return {successful, reason, subletRequestMessage, subletRequestFirstName, subletRequestLastName, subletRequestContactInfo,
+        subletRequestEmail};
     }
 
 

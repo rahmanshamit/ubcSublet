@@ -162,9 +162,11 @@ class UBCSubletAPI {
 
         let email = auth.email;
 
-        let {successful, reason, subletRequestMessage, subletRequestFirstName, subletRequestLastName, subletRequestContactInfo} = await RequestsManager.acceptSubletRequest({email, postId, subleteeEmail});
+        let {successful, reason, subletRequestMessage, subletRequestFirstName,
+            subletRequestLastName, subletRequestContactInfo, subletRequestEmail} = await RequestsManager.acceptSubletRequest({email, postId, subleteeEmail});
         let code = successful? 200 : 400;
-        let response = successful? {subletRequestMessage, subletRequestFirstName, subletRequestLastName, subletRequestContactInfo} : {reason};
+        let response = successful? {subletRequestMessage, subletRequestFirstName,
+            subletRequestLastName, subletRequestContactInfo, subletRequestEmail} : {reason};
 
 
         return {response, code};
