@@ -70,6 +70,14 @@ app.post('/acceptSubletRequest', function (req, res) {
     });
 });
 
+app.post('/getSubletRequests', function (req, res) {
+    UBCSubletAPI.getSubletRequests(req.body).then(({response, code}) => {
+        res.status(code).send(response);
+    }).catch((err) => {
+        res.status(404).send(err);
+    });
+});
+
 app.post('/createSubleteeInfo', function (req, res) {
     UBCSubletAPI.createSubleteeInfo(req.body).then(({response, code}) => {
         res.status(code).send(response);
@@ -77,6 +85,8 @@ app.post('/createSubleteeInfo', function (req, res) {
         res.status(404).send(err);
     });
 });
+
+
 
 app.post('/editSubleteeInfo', function (req, res) {
     UBCSubletAPI.editSubleteeInfo(req.body).then(({response, code}) => {

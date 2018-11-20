@@ -21,7 +21,7 @@ class RequestsManager {
         let subletRequestContactInfo;
 
         let acceptSubletRequestQuery = `UPDATE SubletRequests
-                                        SET Status='accepted'      
+                                        SET Status='Accepted'      
                                         WHERE '${email}' IN (SELECT SubletterEmail 
                                                              FROM SubletPosts
                                                              WHERE SubletterEmail='${email}' AND PostId=${postId}) 
@@ -111,7 +111,7 @@ class RequestsManager {
 
 
         let createSubletRequestQuery = `INSERT INTO SubletRequests (Email, PostId, Status ${message? ', Message' : ''})
-                                        VALUES ('${email}', ${postId}, 'pending' ${message? `, '${message}'` : ''})`
+                                        VALUES ('${email}', ${postId}, 'Pending' ${message? `, '${message}'` : ''})`
 
 
         try {
@@ -144,6 +144,89 @@ class RequestsManager {
         }
 
         return {successful, reason};
+    }
+
+    static async getSubletRequests({email}) {
+        let connection;
+        let reason;
+        let successful = false;
+        let posts = [];
+        let requests = [];
+
+
+
+
+        let matchedPostQuery =  `SELECT*
+                                 FROM SubletPosts SP
+                                 WHERE SP.SubletterEmail='${email}'`
+
+        let matchedSubletRequestQuery = `SELECT*
+                                         FROM SubletPosts SP, SubletRequests SR
+                                         WHERE SP.SubletterEmail='${email}' AND SR.Status='Pending' AND SP.PostId=SR.PostId`
+
+
+
+        try {
+            connection = await oracledb.getConnection(connectionInfo);
+            console.log("Connection successful. Accepting sublet request");
+
+            let matchedPostResult = await connection.execute(matchedPostQuery);
+
+            let matchedSubletRequestResult = await connection.execute(matchedSubletRequestQuery);
+
+
+
+
+            successful = matchedPostResult.rows.length > 0;
+
+            if (successful) {
+
+                posts = matchedPostResult.rows.map((row)=> {
+                    return {
+                        postId: row[0],
+                        price: row[1],
+                        startDate: row[2],
+                        endDate: row[3],
+                        additionalInfo: row[4],
+                        status: row[5],
+                        building: row[6],
+                        residence: row[7],
+                        roomNumber: row[8],
+                        subletterEmail: row[9]
+                    };
+                });
+
+                requests = matchedSubletRequestResult.rows.map((row)=> {
+                    return {
+                        email: row[10],
+                        postId: row[0]
+                    };
+                });
+
+
+                console.log(`sublet request accepted successfully`);
+
+            } else {
+                console.log(`Something went wrong, sublet request not found`);
+                reason = "NO_ROWS_AFFECTED";
+            }
+        } catch (err) {
+            successful = false;
+            reason = "NO_MATCHING_RESULT"
+            console.log(`Something went wrong, sublet request not found`);
+            console.log(err);
+        } finally {
+            if (connection) {
+                try {
+                    await connection.close();
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+
+        return {successful, reason, posts, requests}
+
     }
 
 }

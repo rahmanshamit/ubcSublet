@@ -69,9 +69,7 @@ class UBCSubletAPI {
 
     static async getCreatePostInfo({auth}) {
         let responseCode = 200;
-        let rooms;
-        let residences;
-        let unitTypes;
+
 
         if (!(auth && await UsersManager.isAuthorized(auth))) {
             return {code: 401};
@@ -159,9 +157,9 @@ class UBCSubletAPI {
 
         let email = auth.email;
 
-        let {successful, reason, message, firstName, lastName, contactInfo} = await RequestsManager.acceptSubletRequest({email, postId, subleteeEmail});
+        let {successful, reason, subletRequestMessage, subletRequestFirstName, subletRequestLastName, subletRequestContactInfo} = await RequestsManager.acceptSubletRequest({email, postId, subleteeEmail});
         let code = successful? 200 : 400;
-        let response = successful? {message, firstName, lastName, contactInfo} : {reason};
+        let response = successful? {subletRequestMessage, subletRequestFirstName, subletRequestLastName, subletRequestContactInfo} : {reason};
 
 
         return {response, code};
@@ -181,6 +179,23 @@ class UBCSubletAPI {
 
         return {response, code};
     }
+
+    static async getSubletRequests({auth}) {
+        if (!(auth && await UsersManager.isAuthorized(auth))) {
+            return {code: 401};
+        }
+
+        let email = auth.email;
+
+        let {successful, reason, posts, requests} = await RequestsManager.getSubletRequests({email});
+        let code = successful? 200 : 400;
+        let response = successful? {posts, requests} : {reason};
+
+
+        return {response, code};
+    }
+
+
 
 
 
